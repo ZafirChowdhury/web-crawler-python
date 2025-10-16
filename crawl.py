@@ -1,4 +1,4 @@
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
 def normalize_url(url):
@@ -11,6 +11,7 @@ def normalize_url(url):
 
     return f"{parsed_url.netloc}{path}"
 
+
 def get_h1_from_html(html):
     parsed_html = BeautifulSoup(html, "html.parser")
 
@@ -19,6 +20,7 @@ def get_h1_from_html(html):
         return h1.get_text().strip()
     
     return ""
+
 
 def get_first_paragraph_from_html(html):
     parsed_html = BeautifulSoup(html, "html.parser")
@@ -35,3 +37,19 @@ def get_first_paragraph_from_html(html):
         return outer_p.get_text().strip()
     
     return ""
+
+
+def get_urls_from_html(html, base_url):
+    parsed_html = BeautifulSoup(html, "html.parser")
+
+    a_tags = parsed_html.find_all("a")
+
+    urls = []
+    for a in a_tags:
+        urls.append(a.get("href"))
+
+    abs_urls = []
+    for url in urls:
+        abs_urls.append(urljoin(base_url, url))
+
+    return abs_urls

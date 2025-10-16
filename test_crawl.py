@@ -1,6 +1,6 @@
 import unittest
 
-from crawl import normalize_url, get_h1_from_html, get_first_paragraph_from_html
+from crawl import normalize_url, get_h1_from_html, get_first_paragraph_from_html, get_urls_from_html
 
 
 class TestCrawl(unittest.TestCase):
@@ -14,6 +14,7 @@ class TestCrawl(unittest.TestCase):
         }
 
         for test_case, expected_output in input_output_map.items():
+            print("Running Subtest")
             with self.subTest(test_case=test_case):
                 self.assertEqual(normalize_url(test_case), expected_output)
 
@@ -33,6 +34,7 @@ class TestCrawl(unittest.TestCase):
         }
 
         for test_case, expected_output in input_output_map.items():
+            print("Running Subtest")
             with self.subTest(test_case=test_case):
                 self.assertEqual(get_h1_from_html(test_case), expected_output)
 
@@ -58,9 +60,35 @@ class TestCrawl(unittest.TestCase):
         }
 
         for test_case, expected_output in input_output_map.items():
+            print("Running Subtest")
             with self.subTest(test_case=test_case):
                 self.assertEqual(get_first_paragraph_from_html(test_case), expected_output)
-                
+
+    
+    def test_get_urls_from_html_absolute(self):
+        input_url = "https://blog.boot.dev"
+        input_body = '<html><body><a href="https://blog.boot.dev"><span>Boot.dev</span></a></body></html>'
+        actual = get_urls_from_html(input_body, input_url)
+        expected = ["https://blog.boot.dev"]
+        self.assertEqual(actual, expected)
+
+        input_url = "https://blog.boot.dev"
+        input_body = '<html><body><a href="https://blog.boot.dev"> <a href="https://blog.boot.dev"><span>Boot.dev</span></a></body></html>'
+        actual = get_urls_from_html(input_body, input_url)
+        expected = ["https://blog.boot.dev", "https://blog.boot.dev"]
+        self.assertEqual(actual, expected)
+
+        input_url = "https://blog.boot.dev"
+        input_body = ''
+        actual = get_urls_from_html(input_body, input_url)
+        expected = []
+        self.assertEqual(actual, expected)
+
+        input_url = "www.facebook.com"
+        input_body = '<a href="www.facebook.com/zafirChowdhury">'
+        actual = get_urls_from_html(input_body, input_url)
+        expected = ["www.facebook.com/zafirChowdhury"]
+        self.assertEqual(actual, expected)
            
 if __name__ == "__main__":
     unittest.main()
