@@ -21,4 +21,17 @@ def get_h1_from_html(html):
     return ""
 
 def get_first_paragraph_from_html(html):
-    pass
+    parsed_html = BeautifulSoup(html, "html.parser")
+
+    main = parsed_html.find("main")
+
+    if main:
+        inner_p = main.find("p")
+        if inner_p:
+            return inner_p.get_text().strip()
+
+    outer_p = parsed_html.find("p")
+    if outer_p:
+        return outer_p.get_text().strip()
+    
+    return ""

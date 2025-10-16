@@ -50,13 +50,17 @@ class TestCrawl(unittest.TestCase):
                 <p>Outside paragraph.</p>
                 <main>
                 </main>
-            </body></html>''' : "Outside paragraph."
+            </body></html>''' : "Outside paragraph.",
+
+            "<html><main> <i>Not p</i> </main></html>": "",
+
+            "<p></P>": "",
         }
 
         for test_case, expected_output in input_output_map.items():
             with self.subTest(test_case=test_case):
                 self.assertEqual(get_first_paragraph_from_html(test_case), expected_output)
-
+                
            
 if __name__ == "__main__":
     unittest.main()
