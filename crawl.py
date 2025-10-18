@@ -65,3 +65,12 @@ def get_images_from_html(html, base_url):
             imgs.append(urljoin(base_url, src))
 
     return imgs
+
+def extract_page_data(html, page_url):
+    return {
+        "url": page_url,
+        "h1": get_h1_from_html(html),
+        "first_paragraph": get_first_paragraph_from_html(html),
+        "outgoing_links": get_urls_from_html(html, page_url),
+        "image_urls": get_images_from_html(html, page_url)
+    }
