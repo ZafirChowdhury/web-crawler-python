@@ -1,6 +1,6 @@
 import unittest
 
-from crawl import normalize_url, get_h1_from_html, get_first_paragraph_from_html, get_urls_from_html
+from crawl import normalize_url, get_h1_from_html, get_first_paragraph_from_html, get_urls_from_html, get_images_from_html
 
 
 class TestCrawl(unittest.TestCase):
@@ -89,6 +89,27 @@ class TestCrawl(unittest.TestCase):
         actual = get_urls_from_html(input_body, input_url)
         expected = ["www.facebook.com/zafirChowdhury"]
         self.assertEqual(actual, expected)
+
+    
+    def test_get_images_from_html_relative(self):
+        input_url = "https://blog.boot.dev"
+        input_body = '<html><body><img src="" alt="Logo"></body></html>'
+        actual = get_images_from_html(input_body, input_url)
+        expected = []
+        self.assertEqual(actual, expected)
+
+        input_url = "https://blog.boot.dev"
+        input_body = '<html><body><img src="/logo.png" alt="Logo"></body></html>'
+        actual = get_images_from_html(input_body, input_url)
+        expected = ["https://blog.boot.dev/logo.png"]
+        self.assertEqual(actual, expected)
+
+        input_url = "https://blog.boot.dev"
+        input_body = '<html><body><img src="/logo.png" alt="Logo"></body> <img src="/outerImg.png"></html>'
+        actual = get_images_from_html(input_body, input_url)
+        expected = ["https://blog.boot.dev/logo.png", "https://blog.boot.dev/outerImg.png"]
+        self.assertEqual(actual, expected)
+
            
 if __name__ == "__main__":
     unittest.main()

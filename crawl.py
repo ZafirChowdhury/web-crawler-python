@@ -46,10 +46,22 @@ def get_urls_from_html(html, base_url):
 
     urls = []
     for a in a_tags:
-        urls.append(a.get("href"))
+        url = a.get("href")
+        if url:
+            urls.append(urljoin(base_url, url))
 
-    abs_urls = []
-    for url in urls:
-        abs_urls.append(urljoin(base_url, url))
+    return urls
 
-    return abs_urls
+
+def get_images_from_html(html, base_url):
+    parsed_html = BeautifulSoup(html, "html.parser")
+
+    img_tags = parsed_html.find_all("img")
+
+    imgs = []
+    for img in img_tags:
+        src = img.get("src")
+        if src:
+            imgs.append(urljoin(base_url, src))
+
+    return imgs
