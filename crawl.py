@@ -50,7 +50,7 @@ def get_urls_from_html(html, base_url):
     urls = []
     for a in a_tags:
         url = a.get("href")
-        if url:
+        if url and url not in urls:
             urls.append(urljoin(base_url, url))
 
     return urls
@@ -90,3 +90,40 @@ def get_html(url):
         raise Exception(f"Invalid content type")
     
     return response.text
+
+
+def crawl_page(base_url, current_url=None, page_data=None):
+    if current_url is None:
+        current_url = base_url
+
+    if page_data is None:
+        page_data = {}
+
+    base_url_parsed, current_url_parsed = urlparse(base_url), urlparse(current_url)
+
+    if base_url_parsed.netloc != current_url_parsed.netloc:
+        return page_data
+    
+    current_url_normalized = normalize_url(current_url)
+
+    if current_url_normalized in page_data:
+        return page_data
+    
+    print(f"Crawling page: {current_url}")
+    
+    try:
+        html = get_html(current_url)
+    except Exception as e:
+        print(e)
+        page_data[current_url_normalized] = {}
+        return page_data
+
+    data = extract_page_data(html, current_url)
+
+    page_data[current_url_normalized] = data
+    
+    urls = get_urls_from_html(html, current_url)
+    for url in urls:
+        crawl_page(base_url, url, page_data)
+
+    return page_data

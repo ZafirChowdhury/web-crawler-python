@@ -1,5 +1,7 @@
 import sys
 
+from crawl import crawl_page
+
 from crawl import get_html, extract_page_data
 
 def main():
@@ -14,8 +16,8 @@ def main():
     print(f"starting crawl of: {sys.argv[1]}")
 
     try:
-        html = get_html(sys.argv[1])
-        print(html)
+        page_data = crawl_page(sys.argv[1])
+        #print(page_data)
     except Exception as e:
         print(e)
 
