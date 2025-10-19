@@ -101,3 +101,7 @@ class AsyncCrawler:
         await self.crawl_page_async()
 
         return self.page_data
+
+async def crawl_site_async(base_url):
+    async with AsyncCrawler(base_url, max_concurrency=3) as crawler:
+        return await crawler.crawl()
