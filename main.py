@@ -1,6 +1,7 @@
 import sys
 
 from async_crawler import crawl_site_async
+from csv_report import write_csv_report
 
 import asyncio
 
@@ -22,6 +23,11 @@ async def main():
             print(f"Found {len(page['outgoing_links'])} outgoing links on {page['url']}")
     except Exception as e:
         pass
+
+    try:
+        write_csv_report(page_data)
+    except Exception as e:
+        print(e)
 
     sys.exit(0)
 
