@@ -6,13 +6,15 @@ from urllib.parse import urlparse
 from crawl import extract_page_data, normalize_url, get_urls_from_html
 
 class AsyncCrawler:
-    def __init__(self, base_url, max_concurrency=1):
+    def __init__(self, base_url, max_concurrency, max_page):
         self.base_url = base_url
         self.base_domain = urlparse(base_url).netloc
         self.page_data = {}
         self.lock = asyncio.Lock()
         self.semaphore = asyncio.Semaphore(max_concurrency)
         self.session = None
+
+        self.max_page = max_page
 
 
     async def __aenter__(self):
@@ -102,6 +104,6 @@ class AsyncCrawler:
 
         return self.page_data
 
-async def crawl_site_async(base_url):
-    async with AsyncCrawler(base_url, max_concurrency=3) as crawler:
+async def crawl_site_async(base_url, max_concurrency=1, max_page=10):
+    async with AsyncCrawler(base_url, max_concurrency=max_concurrency, max_page=max_page) as crawler:
         return await crawler.crawl()
