@@ -15,6 +15,8 @@ class AsyncCrawler:
         self.session = None
 
         self.max_page = max_page
+        self.should_stop = False
+        self.all_tasks = set()
 
 
     async def __aenter__(self):
@@ -29,7 +31,21 @@ class AsyncCrawler:
     # returns True if page not visited
     async def add_page_visit(self, normalized_url):
         async with self.lock:
+            if self.should_stop:
+                return False
+
             if normalized_url in self.page_data:
+                return False
+            
+            self.page_data[normalized_url] = {}
+            if len(self.page_data) >= self.max_page:
+                self.should_stop = True
+                print("Reached maximum number of pages to crawl.")
+
+                for task in self.all_tasks:
+                    if not task.done():
+                        task.cancel()
+
                 return False
             
             return True
@@ -52,6 +68,9 @@ class AsyncCrawler:
         
     
     async def crawl_page_async(self, current_url=None):
+        if self.should_stop:
+            return
+
         if current_url is None:
             current_url = self.base_url
 
@@ -85,6 +104,9 @@ class AsyncCrawler:
 
         async with self.lock:
                 self.page_data[current_url_normalized] = data
+
+        if self.should_stop:
+            return
         
         urls = get_urls_from_html(html, current_url)
         tasks = set()
@@ -92,9 +114,15 @@ class AsyncCrawler:
             task = asyncio.create_task(self.crawl_page_async(url))
 
             tasks.add(task)
+            self.all_tasks.add(task)
             task.add_done_callback(tasks.discard)
 
-        await asyncio.gather(*tasks)
+        if tasks:
+            try:
+                await asyncio.gather(*tasks, return_exceptions=True)
+            finally:
+                for task in tasks:
+                    self.all_tasks.discard(task)
 
         return
     
